@@ -42,10 +42,10 @@ class Robot_player(Robot):
                 print ("\trobot's team (if relevant)      =",sensor_team)
 
         
-        PR = [1, 1, 1, 0, 0, 0, -1, -1 ] 
+        PR = [-1, -1, -1, 0, 0, 0, 1, 1 ] 
 
         translation = sensors[sensor_front]*0.5 # A MODIFIER
-        rotation =  sum([PR[i]*sensors[i] for i in range(8)]) # A MODIFIER
+        rotation = sum([PR[i]*(1-sensors[i]) for i in range(8)]) # A MODIFIER
 
         self.iteration = self.iteration + 1        
         return translation, rotation, False
