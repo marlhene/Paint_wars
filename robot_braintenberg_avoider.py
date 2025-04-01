@@ -6,7 +6,7 @@ debug = True
 
 class Robot_player(Robot):
 
-    team_name = "Dumb"
+    team_name = "Avoider"
     robot_id = -1
     iteration = 0
 
@@ -16,7 +16,7 @@ class Robot_player(Robot):
         nb_robots+=1
         super().__init__(x_0, y_0, theta_0, name=name, team=team)
 
-    def step(self, sensors, sensor_view=None, sensor_robot=None, sensor_team=None):
+    def step(self, sensors:list, sensor_view:list =None, sensor_robot:list =None, sensor_team:list =None):
 
         sensor_to_wall = []
         sensor_to_robot = []
@@ -41,8 +41,11 @@ class Robot_player(Robot):
                 print ("\trobot's name (if relevant)      =",sensor_robot)
                 print ("\trobot's team (if relevant)      =",sensor_team)
 
+        
+        PR = [1, 1, 1, 0, 0, 0, -1, -1 ]
+
         translation = sensors[sensor_front]*0.5 # A MODIFIER
-        rotation = 0.5 # A MODIFIER
+        rotation =  sum([PR[i]*sensors[i] for i in range(8)]) # A MODIFIER
 
         self.iteration = self.iteration + 1        
         return translation, rotation, False
