@@ -31,12 +31,13 @@ class Robot_player(Robot):
         self.param = [random.randint(-1, 1) for i in range(8)]
         self.it_per_evaluation = it_per_evaluation
         self.evaluations = evaluations
+    
         super().__init__(x_0, y_0, theta_0, name=name, team=team)
 
     def reset(self):
         super().reset()
-        #self.theta_0 = random.choice([0,90,180,360])
-        self.current_score=0
+        self.theta_0 = random.randint(0,360)
+        
     
 
     def step(self, sensors, sensor_view=None, sensor_robot=None, sensor_team=None):
@@ -47,9 +48,9 @@ class Robot_player(Robot):
         # - la fonction de controle est une combinaison linéaire des senseurs, pondérés par les paramètres (c'est un "Perceptron")
         # toutes les X itérations: le robot est remis à sa position initiale de l'arène avec une orientation aléatoire
         
-        if(self.trial//3 > 50):
+        if(self.trial//3 > 500):
             self.param = self.bestParam[-1].copy() # Récupération des paramètres
-            print("Paramètre meilleur : ", self.bestParam)
+            print("Meilleur paramètres : ", self.bestParam)
 
         elif self.iteration % self.it_per_evaluation == 0: # 400 tours 
             
@@ -63,15 +64,15 @@ class Robot_player(Robot):
             # Comparaison des stratégies
             self.current_score +=self.log_sum_of_translation*(1-abs(self.log_sum_of_rotation))
 
-            if (self.trial %3 == 0 and ((not(self.bestParam) or self.bestParam[-2] > self.current_score))):
-                self.bestParam = ([self.trial, self.current_score, self.param.copy()])
+            if (self.trial%3 == 0):
+                if(not(self.bestParam) or self.bestParam[-2] < self.current_score/3):
+                    self.bestParam = ([self.trial, self.current_score/3, self.param.copy()])
                 self.param = [random.randint(-1, 1) for i in range(8)]
-                self.reset()
-            self.trial = self.trial + 1
-
-            # Génération des nouveaux points de début
+                self.current_score = 0
             
-            print("Trying strategy no.",self.trial//3, " position initiale ", self.trial %3, "Courant score : ", self.current_score)
+            self.trial = self.trial + 1
+            
+            print("\nTrying strategy no.",(self.trial-1)//3, " position initiale ", (self.trial-1) %3, "Courant score : ", self.current_score)
             self.iteration = self.iteration + 1
             return 0, 0, True # ask for reset
 

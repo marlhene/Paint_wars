@@ -59,7 +59,7 @@ class Robot_player(Robot):
                 
                 
             # Comparaison des stratégies
-            score = self.log_sum_of_translation*(1-abs(self.log_sum_of_rotation))
+            score = self.log_sum_of_translation*(1-abs(self.log_sum_of_rotation))/500
 
             if (not(self.bestParam) or self.bestParam[-2] > score):
                 self.bestParam = ([self.trial, score, self.param.copy()])
