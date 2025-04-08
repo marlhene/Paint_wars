@@ -8,8 +8,10 @@ Cette fonction montre comment faire une recherche aléatoire dans l'espace des p
 
 On considère que chaque paramètre peut prendre une valeur parmi trois: -1 (inhibition), +1 (excitation) ou 0 (pas de connexion).
 
-Calculez le score d'un individu comme vu en courssoit:
+Calculez le score d'un individu pour maximiser à chaque pas de temps la vitesse de translation et minimiser la vitesse de rotation, c'est à dire:
 * score = somme_sur_toutes_les_iterations ( vitesse_de_translation * ( 1 - abs(vitesse_de_rotation) ) ) 
+
+Attention: il s'agit de la translation et de la rotation *effective*. Par exemple, un robot dont la commande de translation est de 1.0 mais qui se cogne contre un mur ne se déplace pas, donc la translation effective est nulle. Etudiez bien le code pour trouver comment faire.
 
 Créez le fichier _robot_randomsearch.py_ (en copiant _robot_optimize.py_), puis modifiez le comme suit:
 * en utilisant les variables existantes, fixer le nombre de comportements à générer aléatoirement qui devront être évalués.
@@ -26,7 +28,7 @@ Remarques:
 
 Un inconvénient du programme précédent vient du fait que la condition initiale (position et orientation initiale) est toujours la même. Cela ne permet pas de garantir que le comportement obtenu sera efficace dans une autre situation. 
 
-En partant du programme précédent (créez un fichier _randomsearch2.py_), modifier le code afin que chaque comportement soit évalué _3_ fois, en tirant aléatoirement l'orientation initiale à chaque fois. Le score d'un comportement sera la somme de ces 3 évaluations.
+En partant du programme précédent (créez un fichier _randomsearch2.py_), modifier le code afin que chaque comportement soit évalué _3_ fois, en tirant aléatoirement l'orientation initiale à chaque fois (vous pouvez modifier la fonction *reset*). Le score d'un comportement sera la somme de ces 3 évaluations.
 
 Remarque: 
 * vous pouvez aussi, si vous le souhaitez, faire varier la position de départ (éviter de positionner votre robot dans un mur).
@@ -55,7 +57,7 @@ Cela donnera par exemple:
 * _etc._
 
 Vous devez maintenant générer des graphes de vos résultats:
-* tracer le résultat d'une recherche (axe X: evaluations, axe Y: score), en traçant pour chaque itération le meilleur individu trouvé jusqu'ici. (cf. premier exemple du fichier _aide.txt_)
+* tracer le résultat d'une recherche (axe X: evaluations, axe Y: score *du parent*), en traçant pour chaque itération le meilleur individu trouvé jusqu'ici. A noter que la courbe est donc croissante, avec des plateaux.
 * tracer la performance moyenne d'une recherche aléatoire en compilant 10 essais indépendants. (cf. second exemple du fichier _aide.txt_)
 Pour cela, vous pouvez utiliser un tableur (p.ex. Libroffice) ou un script Python (ex.: [multiplot](https://github.com/nekonaute/SU-LU3IN025-robots/tree/main/multiplotCSV)).
 

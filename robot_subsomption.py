@@ -41,7 +41,13 @@ class Robot_player(Robot):
                 print ("\trobot's name (if relevant)      =",sensor_robot)
                 print ("\trobot's team (if relevant)      =",sensor_team)
 
-        if( len(list(filter(lambda x : x == 1.0, sensor_robot))) != 0 ):
+        # Je rentre dans le mur
+        if(len(list(filter(lambda x : x == 0, sensor_to_wall))) !=0):
+            PR = [-1, -1, -1, 0, 0, 0, 1, 1 ]
+            rotation = sum([PR[i]*(1-sensor_to_wall[i]) for i in range(8)])
+
+
+        elif( len(list(filter(lambda x : x == 1.0, sensor_robot))) != 0 ):
             # Love bot
             PR = [1, 1, 1, 0, 0, 0, -1, -1 ]
             rotation = sum([PR[i]*(1-sensor_to_robot[i]) for i in range(8)])

@@ -458,8 +458,8 @@ def update_particle_dynamics(x, y, absolute_orientation, translation_per_step, r
 robot_by_id = {}
 
 def simulate(my_robots):
-    global arena, trace, occupancy, occupancy_small, display_fps, robot_by_id, display_screen
-    #global x_particle, y_particle, absolute_orientation, trace, occupancy, occupancy_small, display_fps, robot_by_id, display_screen
+    global arena, trace, occupancy, occupancy_small, display_fps, robot_by_id, display_screen, display_frameskip
+    #global x_particle, y_particle, absolute_orientation, trace, occupancy, occupancy_small, display_fps, robot_by_id, display_screen, display_frameskip
     environment_reset()
     # Building the robot lookup dictionary
     robot_by_id = {}
@@ -518,8 +518,9 @@ def simulate(my_robots):
             if my_robots[k].x != backup_x_particle or my_robots[k].y != backup_y_particle:
                 my_robots[k].log_sum_of_translation += math.sqrt((my_robots[k].x - backup_x_particle)**2 + (my_robots[k].y - backup_y_particle)**2)
         if display_screen:
-            pygame_draw_arena(arena, screen, scale)
-            pygame.time.delay(int(1.0/display_fps*1000))
+            if display_frameskip == 0 or iteration % (display_frameskip+1) == True:
+                pygame_draw_arena(arena, screen, scale)
+                pygame.time.delay(int(1.0/display_fps*1000))
         if verbose_debug:
             print(arena)
         if count_ask_for_reset > 0: # at least one robot asked for reset.
@@ -717,15 +718,20 @@ max_iterations = config.max_iterations
 
 display_mode = config.display_mode # 0: 'real-time' w/ display -- 1: fast w/ display -- 2: fastest, no display
 
+display_frameskip = 0
+
 if display_mode == 2:
     display_screen = False
     display_fps = 100000000
+    display_frameskip = 100000000
 elif display_mode == 1:
     display_screen = True
     display_fps = 100000000
+    display_frameskip = 60
 elif display_mode == 0:
     display_screen = True
     display_fps = 60
+    display_frameskip = 0
 else:
     print ("display_mode =",display_mode,"is not implemented. Stopping.")
     sys.exit()
