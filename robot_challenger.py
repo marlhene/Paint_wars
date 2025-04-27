@@ -60,9 +60,12 @@ class Robot_traveler(Robot_player):
             translation = -(1-sensor[front])
         
         else:
+
+            # Check si suivi
             if (self.memory and self.memory > min(sensor_to_robot[3:6])) : 
                 translation = min(1, 2*sensors[sensor_front]) # Il y a qq derrière moi
 
+            # Mise à jour mémoire
             self.memory = min(sensor_to_robot[3:6]) if min(sensor_to_robot[3:6]) < 1 else None
 
             else : 
