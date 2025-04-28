@@ -8,6 +8,7 @@
 # all sensor and motor value are normalized (from 0.0 to 1.0 for sensors, -1.0 to +1.0 for motors)
 
 from robot import * 
+import math
 
 nb_robots = 0
 
@@ -57,7 +58,7 @@ class Robot_traveler(Robot_player):
         if(sensor_to_wall.index(min(sensor_to_wall)) == 0 and sensor_to_wall[0] < 0.3) : # Il y a un mur devant moi (coincé)
             PR = [1, 1, 1, 1, -1, -1, -1, -1]
             rotation = sum(PR[i]* sensor_to_wall[i] for i in range(8))
-            translation = -(1-sensor[front])
+            translation = -(1-sensors[sensor_front])
         
         else:
 
@@ -65,12 +66,13 @@ class Robot_traveler(Robot_player):
             if (self.memory and self.memory > min(sensor_to_robot[3:6])) : 
                 translation = min(1, 2*sensors[sensor_front]) # Il y a qq derrière moi
 
-            # Mise à jour mémoire
-            self.memory = min(sensor_to_robot[3:6]) if min(sensor_to_robot[3:6]) < 1 else None
+                # Mise à jour mémoire
+                self.memory = min(sensor_to_robot[3:6]) if min(sensor_to_robot[3:6]) < 1 else None
 
             else : 
-                if(sensor_to_robot[0]+sensor_to_robot[1]+sensor_to_robot[7] < 3) # Robot devant
-                    idx = list(filter : lambda x : x in [0,1,7], sorted(range(8), key = lambda y : sensor_to_robot[y]))[0]
+            
+                if(sensor_to_robot[0]+sensor_to_robot[1]+sensor_to_robot[7] < 3) :# Robot devant
+                    idx = list(filter(lambda x : x in [0,1,7], sorted(range(8), key = lambda y : sensor_to_robot[y])))[0]
 
                     # Check si dans la même team
                     if (sensor_team[idx] == self.team) :
@@ -113,7 +115,7 @@ class Robot_homebody():
         if(sensor_to_wall.index(min(sensor_to_wall)) == 0 and sensor_to_wall[0] < 0.3) : # Il y a un mur devant moi (coincé)
             PR = [1, 1, 1, 1, -1, -1, -1, -1]
             rotation = sum(PR[i]* sensor_to_wall[i] for i in range(8))
-            translation = -(1-sensor[front])
+            translation = -(1-sensors[sensor_front])
         
         else:
 
@@ -121,12 +123,12 @@ class Robot_homebody():
             if (self.memory != 1 and self.memory > min(sensor_to_robot[3:6])) : 
                 translation = min(1, 2*sensors[sensor_front]) # Il y a qq derrière moi
 
-            # Mise à jour mémoire
-            self.memory = min(sensor_to_robot[3:6]) 
+                # Mise à jour mémoire
+                self.memory = min(sensor_to_robot[3:6]) 
 
             else : 
-                if(sensor_to_robot[0]+sensor_to_robot[1]+sensor_to_robot[7] < 3) # Robot devant
-                    idx = list(filter : lambda x : x in [0,1,7], sorted(range(8), key = lambda y : sensor_to_robot[y]))[0]
+                if(sensor_to_robot[0]+sensor_to_robot[1]+sensor_to_robot[7] < 3): # Robot devant
+                    idx = list(filter(lambda x : x in [0,1,7], sorted(range(8), key = lambda y : sensor_to_robot[y])))[0]
 
                     # Check si dans la même team
                     if (sensor_team[idx] == self.team) :
