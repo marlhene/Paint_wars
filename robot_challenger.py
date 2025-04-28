@@ -17,7 +17,7 @@ class Robot_player(Robot):
 
     team_name = "Challenger"  # vous pouvez modifier le nom de votre équipe
     robot_id = -1             # ne pas modifier. Permet de connaitre le numéro de votre robot.
-    memory = 0                # vous n'avez le droit qu'a une case mémoire qui doit être obligatoirement un entier
+    memory = random.choice([-1,1])              # vous n'avez le droit qu'a une case mémoire qui doit être obligatoirement un entier
 
     def __init__(self, x_0, y_0, theta_0, name="n/a", team="n/a"):
         global nb_robots
@@ -27,35 +27,51 @@ class Robot_player(Robot):
 
     def step(self, sensors, sensor_view=None, sensor_robot=None, sensor_team=None):
         translation = sensors[sensor_front]
-        rotation = 0
-        self.memory = random.choice([-1,1])
-        #rotation = 1.0 * sensors[sensor_front_left] - 1.0 * sensors[sensor_front_right] + (random.random()-0.5)*0.1
+        rotation = 1.0 * sensors[sensor_front_left] - 1.0 * sensors[sensor_front_right] + (random.random()-0.5)*0.1
 
         # Parcours de l'arbre de décision 
+        match self.id :
 
-        if(sensors.index(min(sensors)) == 0 and sensors[0] < 0.5) : # Est-ce qu'il y a quelque chose devant moi ?
-            rotation = self.memory
-        
-        else : # Sinon : adoption du comportement normal
-            
-            match self.id :
+            case 0 : # Traveler
+                
+                P = [1, 0, 1, 1, -1, 1, 1, -1] # Paramètres optimisés pour maximiser la distance à l'origine dans robot_travelling.py
+                translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right] )
+                rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right] )
 
-                case 0 : # Player 1 : Traveller 
-                    P = [1, 0, 1, 1, self.memory, 1, 1, -1] # Paramètres optimisés pour maximiser la distance à l'origine dans robot_travelling.py
+            case 1 : #Homebody
+                if(sensors.index(min(sensors)) in [0,1,7] and min(sensors) <0.6) : # Est-ce qu'il y a quelque chose devant moi ?
+                    P = [1, 1, 0, 0, 0, 0, 0, 1] 
+                    rotation = sum([P[i]*sensors[i] for i in range(8)] )
+                    translation = sum([P[i]*sensors[i] for i in range(8)] )
+                else : 
+                    P = [1, 0, 1, 1, random.choice([-1,1,0]), 1, 1, -1] # Paramètres optimisés pour maximiser la distance à l'origine dans robot_travelling.py
                     translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right] )
                     rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right] )
-                
-                case 1 : # Player 2 : Homebody
-                    P = [1, 1, 1, 1, self.memory, 0, self.memory, self.memory] # Paramètres optimisés pour maximiser l'exploration autour de soi à l'aide de robot_homebody.py
+            
+            # case 1 : # Homebody 
+            #     self.memory = random.choice([0,-1,1])
+            #     P = [1, 1, 1, 1, self.memory, 0, self.memory, self.memory] # Paramètres optimisés pour maximiser l'exploration autour de soi à l'aide de robot_homebody.py
+            #     translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right])
+            #     rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right])
+
+            case 2 : # Straight Foward
+
+                # Est-ce qu'il y a un quelque chose qui m'empêche d'avancer ? 
+                if( sensors.index(min(sensors)) not in [3,4,5] and (sensors[sensor_front] < 0.5 or min(sensors) < 0.3) and (abs(sensors.index(min(sensors))) - (sensors.index(min(sensors)))+4)%8> 0.05) :
+                            rotation = 1 if sum(sensors[1:4]) > sum(sensors[5:]) else -1
+                            translation = 0.2
+
+                # Sinon : tout droit
+                else : 
+                    P = [0, 1, 1, -1, 0, -1, 0, 1]
                     translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right])
                     rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right])
-    
-                case 2 : # Player 3 : Straightfoward 
-                    rotation, translation = 0, 1
                 
-                case 3 : # Player 4 : Wanderer Avoider
-                    PR = [self.memory, 1, 0, 0, 0, 0, 0, -1 ]  
-                    rotation = sum([PR[i]*sensors[i] for i in range(8)] )*0.25
+            case 3 : #Avoider
+                PR = [-1, -1, -1, 0, 0, 0, 1, 1 ] 
+
+                translation = sensors[sensor_front]*0.5 # A MODIFIER
+                rotation = sum([PR[i]*(1-sensors[i]) for i in range(8)])*0.2 # A MODIFIER
 
         return translation, rotation, False
 
