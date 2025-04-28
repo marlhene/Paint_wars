@@ -53,8 +53,9 @@ class Robot_player(Robot):
                 case 2 : # Player 3 : Straightfoward 
                     rotation, translation = 0, 1
                 
-                case 3 : # Player 4 : 
-                    continue # TODO
+                case 3 : # Player 4 : Wanderer Avoider
+                    PR = [self.memory, 1, 0, 0, 0, 0, 0, -1 ]  
+                    rotation = sum([PR[i]*sensors[i] for i in range(8)] )*0.25
 
         return translation, rotation, False
 
