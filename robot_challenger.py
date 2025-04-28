@@ -143,3 +143,33 @@ class Robot_homebody(Robot_player):
                     rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right])*0.25
 
         return translation, rotation, False
+    
+    class Robot_straightfoward(Robot_player):
+
+        def step(self, sensors, sensor_view=None, sensor_robot=None, sensor_team=None) :
+
+            # Paramètres par défaut
+            translation = sensors[sensor_front]
+            rotation = 0
+
+            sensor_to_wall = []
+            sensor_to_robot = []
+            for i in range (0,8):
+                if  sensor_view[i] == 1:
+                    sensor_to_wall.append( sensors[i] )
+                    sensor_to_robot.append(1.0)
+                elif  sensor_view[i] == 2:
+                    sensor_to_wall.append( 1.0 )
+                    sensor_to_robot.append( sensors[i] )
+                else:
+                    sensor_to_wall.append(1.0)
+                    sensor_to_robot.append(1.0)
+
+            # Parcours de l'arbre de décision :
+
+            # Check si quelque chose devant : 
+                # Si oui, self memory fait tourner à gauche ou à droite
+
+                # Réinitialisation random en -1 ou 1
+            
+            # Translation : Breintenberg ig
