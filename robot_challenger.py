@@ -2,7 +2,7 @@
 #
 # Binome:
 #  Prénom Nom No_étudiant/e : _________
-#  Prénom Nom No_étudiant/e : _________
+#  Prénom Nom No_étudiant/e : COMBO Lyna - 21201927
 #
 # check robot.py for sensor naming convention
 # all sensor and motor value are normalized (from 0.0 to 1.0 for sensors, -1.0 to +1.0 for motors)
@@ -11,6 +11,7 @@ from robot import *
 import math
 
 nb_robots = 0
+random.seed(None)
 
 class Robot_player(Robot):
 
@@ -26,7 +27,35 @@ class Robot_player(Robot):
 
     def step(self, sensors, sensor_view=None, sensor_robot=None, sensor_team=None):
         translation = sensors[sensor_front]
-        rotation = 1.0 * sensors[sensor_front_left] - 1.0 * sensors[sensor_front_right] + (random.random()-0.5)*0.1
+        rotation = 0
+        self.memory = random.choice([-1,1])
+        #rotation = 1.0 * sensors[sensor_front_left] - 1.0 * sensors[sensor_front_right] + (random.random()-0.5)*0.1
+
+        # Parcours de l'arbre de décision 
+
+        if(sensors.index(min(sensors)) == 0 and sensors[0] < 0.5) : # Est-ce qu'il y a quelque chose devant moi ?
+            rotation = self.memory
+        
+        else : # Sinon : adoption du comportement normal
+            
+            match self.id :
+
+                case 0 : # Player 1 : Traveller 
+                    P = [1, 0, 1, 1, self.memory, 1, 1, -1] # Paramètres optimisés pour maximiser la distance à l'origine dans robot_travelling.py
+                    translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right] )
+                    rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right] )
+                
+                case 1 : # Player 2 : Homebody
+                    P = [1, 1, 1, 1, self.memory, 0, self.memory, self.memory] # Paramètres optimisés pour maximiser l'exploration autour de soi à l'aide de robot_homebody.py
+                    translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right])
+                    rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right])
+    
+                case 2 : # Player 3 : Straightfoward 
+                    rotation, translation = 0, 1
+                
+                case 3 : # Player 4 : 
+                    continue # TODO
+
         return translation, rotation, False
 
 class Robot_traveler(Robot_player):
@@ -55,7 +84,7 @@ class Robot_traveler(Robot_player):
 
         # Parcours de l'arbre de décision :
 
-        if(sensor_to_wall.index(min(sensor_to_wall)) in [0,2,6] and sensor_to_wall[0] < 0.5) : # Il y a un mur devant moi (coincé)
+        if(sensor_to_wall.index(min(sensor_to_wall)) in [0,1,7] and sensor_to_wall[0] < 0.5) : # Il y a un mur devant moi (coincé)
             PR = [1, 1, 1, 1, -1, -1, -1, -1]
             rotation = sum(PR[i]* sensor_to_wall[i] for i in range(8))
             translation = -(1 -min(sensor_to_wall))
@@ -140,7 +169,7 @@ class Robot_homebody(Robot_player):
                 else : # Adoption du comportement normal
                     P = [1, 1, 1, 1, -1, 0, -1, -1] # Paramètres optimisés pour maximiser l'exploration autour de soi à l'aide de robot_homebody.py
                     translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right])
-                    rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right])*0.25
+                    rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right])
 
         return translation, rotation, False
     
