@@ -55,10 +55,10 @@ class Robot_traveler(Robot_player):
 
         # Parcours de l'arbre de décision :
 
-        if(sensor_to_wall.index(min(sensor_to_wall)) == 0 and sensor_to_wall[0] < 0.3) : # Il y a un mur devant moi (coincé)
+        if(sensor_to_wall.index(min(sensor_to_wall)) in [0,2,6] and sensor_to_wall[0] < 0.5) : # Il y a un mur devant moi (coincé)
             PR = [1, 1, 1, 1, -1, -1, -1, -1]
             rotation = sum(PR[i]* sensor_to_wall[i] for i in range(8))
-            translation = -(1-sensors[sensor_front])
+            translation = -(1 -min(sensor_to_wall))
         
         else:
 
@@ -86,7 +86,7 @@ class Robot_traveler(Robot_player):
 
         return translation, rotation, False
 
-class Robot_homebody():
+class Robot_homebody(Robot_player):
     """
     Robot qui priorise l'espace autour de lui
 
@@ -112,7 +112,7 @@ class Robot_homebody():
 
         # Parcours de l'arbre de décision :
 
-        if(sensor_to_wall.index(min(sensor_to_wall)) == 0 and sensor_to_wall[0] < 0.3) : # Il y a un mur devant moi (coincé)
+        if(sensor_to_wall.index(min(sensor_to_wall)) == 0 and sensors[0] < 0.2) : # Il y a un mur devant moi (coincé)
             PR = [1, 1, 1, 1, -1, -1, -1, -1]
             rotation = sum(PR[i]* sensor_to_wall[i] for i in range(8))
             translation = -(1-sensors[sensor_front])
@@ -134,10 +134,12 @@ class Robot_homebody():
                     if (sensor_team[idx] == self.team) :
                         rotation = 1
                     else : rotation = 0.25
+
+                    translation = -(1-sensors[sensor_front])
                 
                 else : # Adoption du comportement normal
                     P = [1, 1, 1, 1, -1, 0, -1, -1] # Paramètres optimisés pour maximiser l'exploration autour de soi à l'aide de robot_homebody.py
                     translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right])
-                    rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right])*0.5
+                    rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right])*0.25
 
         return translation, rotation, False
