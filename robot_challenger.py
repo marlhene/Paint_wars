@@ -34,10 +34,25 @@ class Robot_player(Robot):
         # match self.id :
 
         if self.id==0 : # Traveler
+            ennemi = False
+            for i in range(8) :
+                    if sensors[i]<0.4 and sensor_view[i]==2 and sensor_robot[i]!=self.team : # Si on a un robot de l'équipe adverse à proximité
+                        ennemi = True
+                        ennemis.append(sensors[i])
+                    else :
+                        ennemis.append(0)
+                        
+            if ennemi : 
+                rotation = sum([ennemis[i]*(sensors[i]) for i in range(8)]) + math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right])
+                
+            else : 
+                rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right] )
+ 
+                
+            
             
             P = [1, 0, 1, 1, -1, 1, 1, -1] # Paramètres optimisés pour maximiser la distance à l'origine dans robot_travelling.py
             translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right] )
-            rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right] )
 
         elif self.id==1 : #Homebody
             if(sensors.index(min(sensors)) in [0,1,7] and min(sensors) <0.6) : # Est-ce qu'il y a quelque chose devant moi ?
@@ -49,8 +64,6 @@ class Robot_player(Robot):
                 translation = math.tanh ( P[0] + P[1] * sensors[sensor_front_left] + P[2] * sensors[sensor_front] + P[3]* sensors[sensor_front_right] )
                 rotation = math.tanh ( P[4] + P[5] * sensors[sensor_front_left] + P[6] * sensors[sensor_front] + P[7] * sensors[sensor_front_right] )
         
-   
-    
    
         elif self.id==2 : # Straight Foward
             if sensor_view[sensors.index(min(sensors))]==1 and min(sensors) <0.02 :
